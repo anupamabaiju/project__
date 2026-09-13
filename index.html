@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudPulse | Next-Gen Cloud Platform</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS CODE (Inline Styling) -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #030712;
+            color: #f3f4f6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Glassmorphism Navbar */
+        .glass-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 8%;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon { color: #06b6d4; font-size: 1.8rem; }
+        .logo span { color: #38bdf8; }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .nav-links a:hover, .nav-links a.active { color: #38bdf8; }
+
+        .status-badge {
+            background: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #4ade80;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+        .hero-text { max-width: 850px; }
+
+        .badge-glow {
+            display: inline-block;
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.15), rgba(168, 85, 247, 0.15));
+            color: #cbd5e1;
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #ffffff 30%, #38bdf8 70%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: #94a3b8;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .hero-actions { display: flex; gap: 20px; justify-content: center; }
+
+        /* Buttons */
+        .btn-gradient {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 35px rgba(139, 92, 246, 0.7);
+        }
+
+        .btn-glass {
+            padding: 14px 28px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-glass:hover { background: rgba(255, 255, 255, 0.12); transform: translateY(-3px); }
+
+        /* Section Styling */
+        .section { padding: 90px 8%; }
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        /* Glass Cards */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 30px;
+            transition: 0.4s ease;
+        }
+        .glass-panel:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            transform: translateY(-5px);
+        }
+
+        /* Metrics Cards */
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        .metric-header { display: flex; justify-content: space-between; font-weight: 700; color: #94a3b8; margin-bottom: 15px; }
+        .metric-header i { font-size: 1.5rem; }
+        .icon-cyan { color: #38bdf8; }
+        .icon-purple { color: #c084fc; }
+        .icon-pink { color: #f472b6; }
+        .metric-value { font-size: 2.5rem; font-weight: 800; margin-bottom: 15px; }
+
+        .progress-bar { height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; transition: width 0.5s ease; }
+        .fill-cyan { background: linear-gradient(90deg, #06b6d4, #38bdf8); }
+        .fill-purple { background: linear-gradient(90deg, #7c3aed, #c084fc); }
+        .fill-pink { background: linear-gradient(90deg, #db2777, #f472b6); }
+
+        /* Server Cards */
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 18px;
+            border-radius: 30px;
+            width: 300px;
+        }
+        .search-box input { background: transparent; border: none; outline: none; color: white; width: 100%; }
+        .search-box i { color: #94a3b8; }
+
+        .server-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .server-status { font-size: 0.8rem; padding: 4px 10px; border-radius: 12px; font-weight: 700; }
+        .status-online { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .status-busy { background: rgba(234, 179, 8, 0.2); color: #facc15; }
+
+        /* Terminal Console */
+        .console-card { max-width: 700px; margin: 0 auto; }
+        .console-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px; margin-bottom: 25px; }
+        .dots { display: flex; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .red { background: #ef4444; }
+        .yellow { background: #eab308; }
+        .green { background: #22c55e; }
+
+        .input-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .input-row input, textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #38bdf8;
+            font-family: monospace;
+            outline: none;
+        }
+        .input-row input:focus, textarea:focus { border-color: #38bdf8; }
+        textarea { margin-bottom: 15px; resize: none; }
+        .w-100 { width: 100%; justify-content: center; }
+
+        .terminal-output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #000;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #4ade80;
+            display: none;
+        }
+
+        footer { text-align: center; padding: 40px; color: #64748b; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+
+        @media(max-width: 768px) {
+            .hero h1 { font-size: 2.3rem; }
+            .nav-links { display: none; }
+            .section-header { flex-direction: column; gap: 20px; align-items: flex-start; }
+            .search-box { width: 100%; }
+            .input-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HTML STRUCTURE -->
+
+    <!-- Dynamic Particle Canvas Background -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="logo">
+            <i class="fa-solid fa-cloud-bolt logo-icon"></i>
+            <span>Cloud</span>Pulse
+        </div>
+        <ul class="nav-links">
+            <li><a href="#overview" class="active">Overview</a></li>
+            <li><a href="#metrics">System Metrics</a></li>
+            <li><a href="#servers">Live Servers</a></li>
+            <li><a href="#contact">Console Access</a></li>
+        </ul>
+        <div class="status-badge">
+            <span class="pulse-dot"></span> System Live
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="overview" class="hero">
+        <div class="hero-text">
+            <span class="badge-glow"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Powered Cloud Operating System</span>
+            <h1>Real-Time Cloud Infrastructure & Intelligent Analytics</h1>
+            <p>Monitor multi-cloud deployments, automate server scaling, and visualize live network traffic with sub-millisecond response latency.</p>
+            <div class="hero-actions">
+                <button class="btn-gradient" id="explore-btn"><i class="fa-solid fa-rocket"></i> Launch Terminal</button>
+                <button class="btn-glass" id="demo-btn"><i class="fa-solid fa-play"></i> Watch Demo</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live System Metrics Section -->
+    <section id="metrics" class="section">
+        <h2 class="section-title">Live System Performance</h2>
+        <div class="metrics-grid">
+            <div class="metric-card glass-panel">
+                <div class="metric-header">
+                    <span>CPU LOAD</span>
+                    <i class="fa-solid fa-microchip icon-cyan"></i>
+                </div>
+                <div class="metric-value" id="cpu-val">42%</div>
+                <div class="progress-bar"><div class="progress-fill fill-cyan" id="cpu-bar" style="width: 42%;"></div></div>
+            </div>
+
+            <div class="metric-card glass-panel">
+                <div class="metric-header">
+                    <span>MEMORY USAGE</span>
+                    <i class="fa-solid fa-memory icon-purple"></i>
+                </div>
+                <div class="metric-value" id="ram-val">68%</div>
+                <div class="progress-bar"><div class="progress-fill fill-purple" id="ram-bar" style="width: 68%;"></div></div>
+            </div>
+
+            <div class="metric-card glass-panel">
+                <div class="metric-header">
+                    <span>NETWORK TRAFFIC</span>
+                    <i class="fa-solid fa-network-wired icon-pink"></i>
+                </div>
+                <div class="metric-value" id="net-val">1.2 GB/s</div>
+                <div class="progress-bar"><div class="progress-fill fill-pink" id="net-bar" style="width: 80%;"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Server Nodes Showcase -->
+    <section id="servers" class="section">
+        <div class="section-header">
+            <h2 class="section-title">Global Server Infrastructure</h2>
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" placeholder="Search server regions...">
+            </div>
+        </div>
+
+        <div class="server-grid" id="server-container">
+            <!-- Dynamic Server Cards Rendered via JS -->
+        </div>
+    </section>
+
+    <!-- Interactive Console Section -->
+    <section id="contact" class="section">
+        <div class="console-card glass-panel">
+            <div class="console-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span class="title">Terminal Request Console</span>
+            </div>
+            <form id="console-form">
+                <div class="input-row">
+                    <input type="text" id="cli-user" placeholder="Admin Username" required>
+                    <input type="email" id="cli-email" placeholder="Developer Email" required>
+                </div>
+                <textarea id="cli-msg" rows="3" placeholder="Enter API Command or Message..." required></textarea>
+                <button type="submit" class="btn-gradient w-100"><i class="fa-solid fa-terminal"></i> Execute Request</button>
+            </form>
+            <div id="console-output" class="terminal-output"></div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 CloudPulse Systems Inc. Built with Advanced HTML5 Canvas & Web Components.</p>
+    </footer>
+
+    <!-- JAVASCRIPT CODE (Inline Script) -->
+    <script>
+        // 1. Dynamic Animated Canvas Particle Background System
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray = [];
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            init();
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 1.5 - 0.75;
+                this.speedY = Math.random() * 1.5 - 0.75;
+                this.color = `rgba(56, 189, 248, ${Math.random() * 0.5 + 0.2})`;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            for (let i = 0; i < 70; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+        init();
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+
+        // 2. Real-Time Dynamic Metric Simulator
+        function updateMetrics() {
+            const cpuVal = Math.floor(Math.random() * 30) + 30; // 30-60%
+            const ramVal = Math.floor(Math.random() * 20) + 60; // 60-80%
+            const netVal = (Math.random() * 0.8 + 1.0).toFixed(2); // 1.00-1.80 GB/s
+
+            document.getElementById('cpu-val').innerText = `${cpuVal}%`;
+            document.getElementById('cpu-bar').style.width = `${cpuVal}%`;
+
+            document.getElementById('ram-val').innerText = `${ramVal}%`;
+            document.getElementById('ram-bar').style.width = `${ramVal}%`;
+
+            document.getElementById('net-val').innerText = `${netVal} GB/s`;
+            document.getElementById('net-bar').style.width = `${(netVal / 2) * 100}%`;
+        }
+        setInterval(updateMetrics, 2500);
+
+
+        // 3. Dynamic Server Infrastructure Array & Search Engine
+        const serverData = [
+            { name: "US-East (N. Virginia)", ip: "192.168.1.101", latency: "12ms", status: "Online", statusClass: "status-online" },
+            { name: "EU-Central (Frankfurt)", ip: "10.0.4.55", latency: "45ms", status: "Online", statusClass: "status-online" },
+            { name: "AP-South (Mumbai)", ip: "172.16.0.12", latency: "8ms", status: "High Load", statusClass: "status-busy" },
+            { name: "AP-East (Tokyo)", ip: "192.168.4.88", latency: "28ms", status: "Online", statusClass: "status-online" },
+            { name: "SA-East (São Paulo)", ip: "10.2.1.99", latency: "110ms", status: "Online", statusClass: "status-online" },
+            { name: "ME-Central (Dubai)", ip: "172.20.1.4", latency: "18ms", status: "Online", statusClass: "status-online" }
+        ];
+
+        const serverContainer = document.getElementById('server-container');
+
+        function renderServers(servers) {
+            serverContainer.innerHTML = '';
+            servers.forEach(srv => {
+                const card = document.createElement('div');
+                card.className = 'glass-panel';
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h3 style="font-size:1.1rem;">${srv.name}</h3>
+                        <span class="server-status ${srv.statusClass}">${srv.status}</span>
+                    </div>
+                    <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:6px;"><i class="fa-solid fa-server"></i> IP: ${srv.ip}</p>
+                    <p style="color:#94a3b8; font-size:0.85rem;"><i class="fa-solid fa-bolt"></i> Latency: <span style="color:#38bdf8">${srv.latency}</span></p>
+                `;
+                serverContainer.appendChild(card);
+            });
+        }
+        renderServers(serverData);
+
+        // Live Filter/Search Logic
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            const filtered = serverData.filter(s => s.name.toLowerCase().includes(val) || s.ip.includes(val));
+            renderServers(filtered);
+        });
+
+
+        // 4. Interactive Terminal Command Logic
+        const consoleForm = document.getElementById('console-form');
+        const consoleOutput = document.getElementById('console-output');
+
+        consoleForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('cli-user').value;
+            const msg = document.getElementById('cli-msg').value;
+
+            consoleOutput.style.display = 'block';
+            consoleOutput.innerHTML = `
+                <p>> Initiating CloudPulse Secure Terminal...</p>
+                <p>> Authenticating User: [${user}] ... AUTH SUCCESS</p>
+                <p>> Executing Command: "${msg}"</p>
+                <p style="color:#38bdf8;">> SYSTEM RESPONSE: Request deployed to cluster successfully!</p>
+            `;
+
+            consoleForm.reset();
+        });
+
+        // Navigation Smooth Scroll CTA Button
+        document.getElementById('explore-btn').addEventListener('click', () => {
+            document.getElementById('servers').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        document.getElementById('demo-btn').addEventListener('click', () => {
+            alert("CloudPulse Interactive Demo Mode is Active!");
+        });
+    </script>
+</body>
+</html>
